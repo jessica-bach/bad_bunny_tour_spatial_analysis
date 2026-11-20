@@ -38,4 +38,3 @@ COPY public.spatial_ref_sys (srid, auth_name, auth_srid, srtext, proj4text) FROM
 --
 
 \unrestrict GxC0rkKFdZ0nm8j5k4qsxjTnfIvg7HyKDiteSdVpoSVEsduLzlFWHqtKDNSJWBD
-
