@@ -1,16 +1,16 @@
 --------------------------------------------------------------------------------
--- PROYECTO: Análisis Espacial y Logístico del "Debí tirar más fotos Tour" (Bad Bunny)
--- GESTOR DE BASE DE DATOS: PostgreSQL / PostGIS
--- DESCRIPCIÓN: Script integral de procesamiento, enriquecimiento y análisis espacial
+-- PROJECT: Spatial and Logistics Analysis of the "Debí tirar más fotos Tour" (Bad Bunny)
+-- DATABASE MANAGEMENT SYSTEM: PostgreSQL / PostGIS
+-- DESCRIPTION: Comprehensive script for processing, enriching, and spatial analysis
 --------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------
--- SECCIÓN 2: CREACIÓN Y ENRIQUECIMIENTO DE LA TABLA "ESTADIOS"
+-- SECTION 2: CREATION AND ENRICHMENT OF THE "STADIUMS" TABLE
 --------------------------------------------------------------------------------
 
--- 2.1. Extracción de recintos únicos
--- A partir de los eventos, se aíslan los estadios y ciudades únicos mediante SELECT DISTINCT 
--- para eliminar duplicados por fechas múltiples en una misma sede.
+-- 2.1. Extraction of unique venues
+-- Isolate unique stadiums and cities from concert events using SELECT DISTINCT
+-- to remove duplicates caused by multiple dates at the same venue.
 DROP TABLE IF EXISTS estadios;
 
 CREATE TABLE estadios (
@@ -24,9 +24,9 @@ SELECT DISTINCT estadio, ciudad, pais
 FROM conciertos;
 
 
--- 2.2. Reestructuración e incorporación de aforos y metadatos
--- Se reemplaza la tabla anterior por una más robusta que incluye la capacidad máxima 
--- teórica de cada recinto y sus fuentes bibliográficas.
+-- 2.2. Restructuring and addition of capacities and metadata
+-- Replace the previous table with a more robust schema that includes each venue's
+-- theoretical maximum capacity and its reference sources.
 DROP TABLE estadios;
 
 CREATE TABLE estadios (
@@ -38,7 +38,7 @@ CREATE TABLE estadios (
     fuente_capacidad text
 );
 
--- Inserción manual de capacidades contrastadas para espectáculos musicales.
+-- Manual insertion of verified capacities for live music events.
 INSERT INTO estadios (estadio, ciudad, pais, fuente_estadio, capacidad, fuente_capacidad) VALUES
 ('King Baudouin Stadium','Bruselas','Bélgica','https://depuertoricopalmundo.com/',50093,'https://en.wikipedia.org/wiki/King_Baudouin_Stadium'),
 ('Tipstar Dome Chiba','Tokio','Japón','https://es.wikipedia.org/wiki/Deb%C3%AD_Tirar_M%C3%A1s_Fotos_World_Tour',3600,'https://grokipedia.com/page/chiba_velodrome'),
@@ -65,8 +65,8 @@ INSERT INTO estadios (estadio, ciudad, pais, fuente_estadio, capacidad, fuente_c
 ('Orange Vélodrome','Marsella','Francia','https://depuertoricopalmundo.com/',67394,'https://en.wikipedia.org/wiki/Stade_V%C3%A9lodrome');
 
 
--- 2.2.2. Cálculo de la frecuencia de shows por estadio
--- Se agrega la columna total_shows y se calcula agrupando los registros desde la tabla conciertos.
+-- 2.2.2. Calculation of show frequency per stadium
+-- Add the total_shows column and calculate it by grouping records from the concerts table.
 ALTER TABLE estadios
 ADD COLUMN total_shows integer;
 
@@ -80,8 +80,8 @@ FROM (
 WHERE e.ciudad = sub.ciudad;
 
 
--- 2.2.3. Integración de datos demográficos (Población 2025)
--- Se crea una tabla auxiliar con el reporte global de población urbana (Worldometer).
+-- 2.2.3. Integration of demographic data (2025 Population)
+-- Create an auxiliary table with the global urban population report (Worldometer).
 DROP TABLE IF EXISTS ciudades;
 
 CREATE TABLE ciudades (
@@ -91,8 +91,8 @@ CREATE TABLE ciudades (
     fuente         text
 );
 
--- (Nota: Inserción del dataset global de 200 ciudades provisto en el script original...)
--- Inserción de los datos recopilados de Worldometer
+-- (Note: Insertion of the global dataset of 200 cities provided in the original script...)
+-- Insertion of data compiled from Worldometer
 INSERT INTO ciudades (ciudad, pais, poblacion_2025, fuente) VALUES
 ('Yakarta','Indonesia',41913860,'https://www.worldometers.info/es/poblacion/ciudades-mas-grandes-del-mundo/'),
 ('Daca','Bangladés',36585479,'https://www.worldometers.info/es/poblacion/ciudades-mas-grandes-del-mundo/'),
@@ -296,7 +296,7 @@ INSERT INTO ciudades (ciudad, pais, poblacion_2025, fuente) VALUES
 ('Curitiba','Brasil',2475352,'https://www.worldometers.info/es/poblacion/ciudades-mas-grandes-del-mundo/');
 
 
--- Vinculación de población metropolitana automática mediante JOIN
+-- Automatic population linkage via JOIN
 ALTER TABLE estadios
 ADD COLUMN pob_ciudad_2025 integer;
 
@@ -306,7 +306,7 @@ FROM ciudades c
 WHERE e.ciudad = c.ciudad
   AND e.pais = c.pais;
 
--- Incorporación de metadatos de fuente demográfica para registros coincidentes
+-- Add population source metadata for matched records
 ALTER TABLE estadios
 ADD COLUMN fuente_poblacion text;
 
@@ -314,12 +314,12 @@ UPDATE estadios
 SET fuente_poblacion = 'https://www.worldometers.info/es/poblacion/ciudades-mas-grandes-del-mundo/'
 WHERE pob_ciudad_2025 IS NOT NULL;
 
--- Auditoría de valores nulos (ciudades del tour fuera del top mundial de Worldometer)
+-- Audit NULL values (tour cities outside Worldometer's global top list)
 SELECT *
 FROM estadios
 WHERE pob_ciudad_2025 IS NULL;
 
--- Actualización manual e individualizada de población para ciudades secundarias del tour
+-- Manual, individual population updates for smaller tour cities
 UPDATE estadios SET pob_ciudad_2025 = 1264392, fuente_poblacion = 'https://worldpopulationreview.com/cities/belgium/brussels' WHERE ciudad ILIKE 'brusel%' AND pob_ciudad_2025 IS NULL;
 UPDATE estadios SET pob_ciudad_2025 = 1866729, fuente_poblacion = 'https://www.citypopulation.de/en/poland/warsaw/' WHERE ciudad ILIKE 'varso%' AND pob_ciudad_2025 IS NULL;
 UPDATE estadios SET pob_ciudad_2025 = 291890,  fuente_poblacion = 'https://worldpopulationreview.com/cities/puerto-rico/san-juan' WHERE ciudad ILIKE 'san juan%' AND pob_ciudad_2025 IS NULL;
@@ -331,7 +331,7 @@ UPDATE estadios SET pob_ciudad_2025 = 180884,  fuente_poblacion = 'https://www.a
 UPDATE estadios SET pob_ciudad_2025 = 895713,  fuente_poblacion = 'https://worldpopulationreview.com/cities/france/marseille' WHERE ciudad ILIKE 'marsell%' AND pob_ciudad_2025 IS NULL;
 
 
--- 2.2.4. Clasificación de las ciudades por tamaño
+-- 2.2.4. Classification of cities by size
 ALTER TABLE estadios 
 ADD COLUMN tamano VARCHAR(50);
 
@@ -345,8 +345,8 @@ SET tamano = CASE
     ELSE 'desconocido'
 END;
 
--- 2.2.5. Asignación de ID cronológico de estadios (1 al 23)
--- Se determina el orden secuencial de visita según la fecha del último concierto en cada ciudad.
+-- 2.2.5. Chronological ID assignment for stadiums (1 to 23)
+-- Determine the sequential visit order based on the last concert in each city.
 ALTER TABLE estadios
 ADD COLUMN id_estadio integer;
 
@@ -372,8 +372,8 @@ WHERE e.ciudad = o.ciudad
   AND e.pais = o.pais;
 
 
--- 2.2.6. Cálculo de asistencia total estimada (Términos absolutos)
--- Se asume aforo completo (lleno total) multiplicando capacidad por total de shows.
+-- 2.2.6. Estimated total attendance calculation (Absolute terms)
+-- Assume full capacity (sold-out) by multiplying capacity by total number of shows.
 ALTER TABLE estadios
 ADD COLUMN asist_total numeric;
 
@@ -381,8 +381,8 @@ UPDATE estadios
 SET asist_total = total_shows * capacidad;
 
 
--- 2.2.7. Cálculo de participación relativa global de ventas
--- Se calcula el porcentaje que representa la asistencia de cada ciudad sobre el total mundial del tour.
+-- 2.2.7. Relative global attendance share calculation
+-- Calculate each city's attendance as a percentage of the tour's global total.
 ALTER TABLE estadios
 ADD COLUMN porcentaje_asist_global numeric;
 

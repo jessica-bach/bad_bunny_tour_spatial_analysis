@@ -1,18 +1,18 @@
 --------------------------------------------------------------------------------
--- PROYECTO: Análisis Espacial y Logístico del "Debí tirar más fotos Tour" (Bad Bunny)
--- GESTOR DE BASE DE DATOS: PostgreSQL / PostGIS
--- DESCRIPCIÓN: Script integral de procesamiento, enriquecimiento y análisis espacial
+-- PROJECT: Spatial and Logistics Analysis of the "Debí tirar más fotos Tour" (Bad Bunny)
+-- DATABASE MANAGEMENT SYSTEM: PostgreSQL / PostGIS
+-- DESCRIPTION: Comprehensive script for processing, enriching, and spatial analysis
 --------------------------------------------------------------------------------
 
 
 --------------------------------------------------------------------------------
--- SECCIÓN 1: CREACIÓN Y ESTRUCTURACIÓN DE LA TABLA "CONCIERTOS"
+-- SECTION 1: CREATION AND STRUCTURING OF THE "CONCERTS" TABLE
 --------------------------------------------------------------------------------
 
--- 1.1. Limpieza y creación de la tabla base de conciertos
--- Se elimina la tabla si ya existe para asegurar una ejecución idempotente.
--- Se define una estructura tabular simple que almacena las fechas oficiales, 
--- ubicaciones y la fuente de procedencia de los datos del tour.
+-- 1.1. Cleanup and creation of the base concerts table
+-- Drop the table if it already exists to ensure idempotent execution.
+-- Define a simple tabular structure storing the official dates,
+-- locations, and source URL of the tour data.
 DROP TABLE IF EXISTS conciertos;
 
 CREATE TABLE conciertos (
@@ -23,7 +23,7 @@ CREATE TABLE conciertos (
     fuente  text
 );
 
--- Inserción del cronograma oficial de presentaciones en vivo de la gira.
+-- Insert the official live performance schedule for the tour.
 INSERT INTO conciertos (fecha, ciudad, pais, estadio, fuente) VALUES
 ('2025-11-21','Santo Domingo','República Dominicana','Estadio Olímpico','https://depuertoricopalmundo.com/'),
 ('2025-11-22','Santo Domingo','República Dominicana','Estadio Olímpico','https://depuertoricopalmundo.com/'),
@@ -86,13 +86,15 @@ INSERT INTO conciertos (fecha, ciudad, pais, estadio, fuente) VALUES
 ('2026-08-23','San Juan','Puerto Rico','Estadio Hiram Bithorn','https://depuertoricopalmundo.com/');
 
 
--- 1.2. Indexación secuencial cronológica de los conciertos
--- Se añade la columna id_concierto para numerar cada show del 1 al 59.
+-- 1.2. Chronological sequential indexing of concerts
+-- Add the concert_id column to number each show from 1 to 59.
+
 ALTER TABLE conciertos
 ADD COLUMN id_concierto integer;
 
--- Se utiliza la función de ventana ROW_NUMBER() ordenada por fecha para generar 
--- un identificador cronológico único que sirve como base para trazar la ruta de la gira.
+-- Use the ROW_NUMBER() window function ordered by date and system tuple ID (ctid)
+-- to assign a unique chronological identifier as a baseline for tracing the tour route.
+
 UPDATE conciertos c
 SET id_concierto = sub.ID
 FROM (
