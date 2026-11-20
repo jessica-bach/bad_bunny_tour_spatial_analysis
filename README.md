@@ -96,61 +96,43 @@ Calculation of each country's share of total estimated attendees worldwide.
 
 ---
 
-## Repository Structure
+Repository Structure
 
-```text
 debi_tirar_mas_fotos/
-
 │
-
 ├── README.md
-
 │
-
-├── presentation/
-│   └── presentation.pdf
-
+├── presentation.pdf
 │
-
-├── methodology/
-│   ├── methodology_and_findings.pdf
+├── methodology_and_results/
+│   ├── methodology_analysis.pdf
 │   └── data_dictionary.pdf
-
 │
-
-├── vector_layers/
+├── final_vector_layers/
 │   ├── stadiums.gpkg
 │   ├── stadiums_metadata.pdf
 │   ├── world_countries.gpkg
 │   ├── world_countries_metadata.pdf
 │   ├── tour_countries.gpkg
 │   ├── tour_countries_metadata.pdf
-│   ├── tour_lines.gpkg
-│   └── tour_lines_metadata.pdf
-
+│   ├── tour_routes.gpkg
+│   └── tour_routes_metadata.pdf
 │
-
-└── scripts/
-
-    ├── table_scripts/
-    │   ├── concerts_table.sql
-    │   ├── cities_table.sql
-    │   ├── stadiums_table.sql
-    │   ├── world_countries_table.sql
-    │   ├── tour_countries_table.sql
-    │   └── spatial_ref_sys_table.sql
-
+└── scripts_and_intermediate_layers/
+    ├── 01_concerts/
+    ├── 02_stadiums/
+    ├── 03_spatial_database_preparation/
+    │   ├── geocoded_stadiums.gpkg
+    │   ├── geocoded_stadiums_table.sql
+    │   └── scripts_3_spatial_database_preparation.sql
     │
-
-    └── project_scripts/
-        ├── 1_concerts.sql
-        ├── 2_stadiums.sql
-        ├── 3_spatial_database_setup.sql
-        ├── 4_tour_lines.sql
-        ├── 5_world_countries.sql
-        ├── 6_tour_countries.sql
-        └── 7_additional_queries.sql
-```
+    ├── 04_tour_routes/
+    ├── 05_world_countries/
+    │   ├── 01_03_World_Countries.rar
+    │   └── scripts_5_world_countries.sql
+    │
+    ├── 06_tour_countries/
+    └── 07_additional_queries/
 
 ---
 
